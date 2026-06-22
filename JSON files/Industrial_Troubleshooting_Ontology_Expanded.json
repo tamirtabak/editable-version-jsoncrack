@@ -1,0 +1,803 @@
+{
+  "schema_version": "3.0",
+  "description": "Expanded Industrial Troubleshooting Ontology with Root Cause Analysis",
+  "generated_date": "2026-06-10",
+  "methodology": "Each top-level problem category is decomposed into 6 root cause categories: Electrical, Mechanical, Communication, Environmental, Operational, and Fluid/Media",
+  "problem_types": [
+    {
+      "id": "leakage",
+      "name": "Leakage (Internal & External)",
+      "description": "Fluid or gas escaping from seals, seats, gaskets, or bonnet joints. Includes internal seat leakage and external stem/flange leakage.",
+      "applies_to_equipment": [
+        "Ball Valve",
+        "Butterfly Valve",
+        "Gate/Globe Valve",
+        "Check Valve",
+        "Control Valve",
+        "Pressure Relief Valve",
+        "Diaphragm Valve",
+        "Plug Valve",
+        "Knife Gate Valve",
+        "Pinch Valve",
+        "Pneumatic Actuator",
+        "Electric Actuator",
+        "Hydraulic Actuator",
+        "Centrifugal Pump",
+        "Positive Displacement Pump",
+        "Diaphragm Pump",
+        "Gear Pump",
+        "Peristaltic Pump",
+        "Reciprocating Compressor",
+        "Screw Compressor",
+        "Centrifugal Compressor",
+        "Heat Exchanger",
+        "Steam Trap"
+      ],
+      "root_causes": [
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Worn or degraded seals and packing material",
+            "Improper gland compression or packing nut torque",
+            "Loose flange bolts or fasteners",
+            "Gasket failure or material incompatibility",
+            "Stem or shaft scoring and surface damage",
+            "Misalignment between mating surfaces",
+            "Seat erosion from abrasive particles or cavitation",
+            "Excessive wear from pressure cycling"
+          ]
+        },
+        {
+          "category": "Electrical",
+          "causes": [
+            "Limit switch misalignment preventing full closure",
+            "Actuator torque settings too low for complete sealing",
+            "Control signal drift or noise preventing stable shut-off",
+            "Failed solenoid coil unable to hold valve closed",
+            "Incorrect valve position feedback to PLC"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Feedback error: HMI shows closed but valve is partially open",
+            "Loss of control signal defaulting valve to unsafe position",
+            "Network packet loss causing intermittent closure commands",
+            "Protocol timeout leaving valve in intermediate state"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "Thermal expansion/contraction of seals and metal components",
+            "Corrosion from ambient humidity, salt spray, or aggressive media",
+            "Debris buildup on sealing surfaces",
+            "Freeze-thaw cycles damaging elastomer seals",
+            "UV degradation of external packing materials"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Over-torquing handwheel or actuator damaging seats",
+            "Improper installation (valve installed backwards)",
+            "Using wrong seal material for pressure/temperature rating",
+            "Frequent cycling beyond design cycle life",
+            "Operating at pressures exceeding valve rating"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "Abrasive particles eroding metal seats",
+            "Chemical attack on elastomer seals from process media",
+            "Cavitation damage to valve internals",
+            "High-velocity 'wire drawing' of soft metal seats",
+            "Solid particles lodged on sealing surface",
+            "Incompatible fluid viscosity affecting seal compression"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "no_start",
+      "name": "No Start / No Motion / Dead Unit",
+      "description": "Equipment fails to start, move, or respond to commands. Complete loss of function with no output or motion.",
+      "applies_to_equipment": [
+        "AC Motor",
+        "Single Phase Motor",
+        "DC Motor",
+        "Servo/Stepper Motor",
+        "Pneumatic Actuator",
+        "Electric Actuator",
+        "Hydraulic Actuator",
+        "Centrifugal Pump",
+        "Positive Displacement Pump",
+        "Diaphragm Pump",
+        "Gear Pump",
+        "Peristaltic Pump",
+        "Reciprocating Compressor",
+        "Screw Compressor",
+        "Centrifugal Compressor",
+        "Blower",
+        "Vacuum Pump",
+        "PLC",
+        "HMI",
+        "Power Supply"
+      ],
+      "root_causes": [
+        {
+          "category": "Electrical",
+          "causes": [
+            "Blown fuses or tripped circuit breakers",
+            "Phase loss in three-phase supply",
+            "Low supply voltage below motor minimum rating",
+            "Burnt motor windings or open circuit",
+            "Failed power supply module or transformer",
+            "Loose wiring connections at terminals",
+            "Broken conductor in power cable",
+            "Contactor/relay coil failure preventing motor energization",
+            "VFD internal fault or blown IGBT module"
+          ]
+        },
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Seized bearings from lack of lubrication",
+            "Jammed internal components (e.g., impeller, rotor)",
+            "Excessive preload torque preventing rotation",
+            "Locked rotor due to external obstruction",
+            "Bent shaft or coupling misalignment",
+            "Gearbox internal damage or gear tooth breakage",
+            "Valve stuck in closed position blocking flow"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Network disconnection (Modbus, Profibus, EtherCAT)",
+            "PLC output card failure or I/O module malfunction",
+            "HMI-to-PLC communication loss",
+            "Emergency stop (E-stop) triggered and not reset",
+            "Incorrect command signal format or protocol",
+            "Baud rate mismatch in serial communication",
+            "IP address conflict in networked devices"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "Moisture ingress causing electrical shorts",
+            "Extreme cold thickening lubricants beyond viscosity limits",
+            "Overheating causing thermal shutdown or component damage",
+            "Corrosion of electrical contacts preventing current flow",
+            "Dust/debris accumulation blocking air vents"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Incorrect programming or control logic",
+            "E-stop not reset after emergency activation",
+            "Manual override engaged (mechanical lock)",
+            "Wrong voltage connected during installation",
+            "Incorrect motor rotation direction setting",
+            "Soft starter ramp time set too high",
+            "Load inertia exceeding motor starting torque"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "Solidified or crystallized media in pump/valve",
+            "Hydrate formation in gas lines blocking flow",
+            "Viscous fluid exceeding motor starting torque capacity",
+            "Air lock in pump suction line",
+            "Cavitation preventing prime in centrifugal pump"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overheating",
+      "name": "Overheating / Thermal Issues",
+      "description": "Excessive temperature rise above normal operating range. Equipment becomes hot to touch or triggers thermal shutdown.",
+      "applies_to_equipment": [
+        "AC Motor",
+        "Single Phase Motor",
+        "DC Motor",
+        "Servo/Stepper Motor",
+        "VFD/Soft Starter",
+        "Power Supply",
+        "Contactor/Relay",
+        "Centrifugal Pump",
+        "Positive Displacement Pump",
+        "Gear Pump",
+        "Reciprocating Compressor",
+        "Screw Compressor",
+        "Centrifugal Compressor",
+        "Gearbox/Reducer",
+        "Heat Exchanger"
+      ],
+      "root_causes": [
+        {
+          "category": "Electrical",
+          "causes": [
+            "Harmonic distortion from VFD operation",
+            "Unbalanced three-phase voltage",
+            "Voltage surges or spikes damaging insulation",
+            "Undersized wiring causing I²R losses",
+            "VFD carrier frequency set too high",
+            "High switching losses in power electronics",
+            "Loose electrical connections increasing resistance"
+          ]
+        },
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Bearing friction from inadequate lubrication",
+            "Lack of lubrication in gearbox or rotating components",
+            "Internal rubbing or misalignment",
+            "Excessive load beyond design capacity",
+            "Worn bearings with increased friction",
+            "Coupling misalignment causing drag",
+            "Bent or unbalanced rotor"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Cooling fan control failure or not receiving stop command",
+            "Temperature sensor error reporting false high readings",
+            "VFD not receiving speed reduction command from controller",
+            "Feedback loop instability causing oscillation and heat"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "High ambient temperature above design rating",
+            "Clogged cooling vents or air filters",
+            "Poor ventilation in control cabinet",
+            "Direct sunlight exposure on equipment",
+            "Dust accumulation on heat sink fins",
+            "Inadequate spacing between equipment in enclosure"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Frequent start/stop cycles (short cycling)",
+            "Operating at low speeds without auxiliary cooling",
+            "Overloading equipment beyond rated capacity",
+            "Continuous operation at maximum load",
+            "Incorrect motor size for application",
+            "Soft starter ramp time too short causing high inrush current"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "High temperature process fluid",
+            "Low flow rate in pumps/compressors leading to heat buildup",
+            "High viscosity fluid causing excessive drag",
+            "Inadequate cooling water flow in heat exchangers",
+            "Fouling or scaling reducing heat transfer efficiency",
+            "Cavitation in pump creating turbulence and heat"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "erratic_signal",
+      "name": "Erratic Reading / Signal Issues / Drift",
+      "description": "Sensor or instrument readings fluctuate, jump, or drift from true value. Unstable or unreliable measurement data.",
+      "applies_to_equipment": [
+        "Pressure Transmitter",
+        "Temperature Sensor",
+        "Flow Meter",
+        "Level Sensor",
+        "Vibration Sensor",
+        "Proximity Sensor",
+        "Photoelectric Sensor",
+        "Radar Level",
+        "Ultrasonic Level",
+        "pH Analyzer",
+        "Conductivity Analyzer",
+        "Gas Analyzer",
+        "Encoder",
+        "PLC",
+        "HMI",
+        "Positioner"
+      ],
+      "root_causes": [
+        {
+          "category": "Electrical",
+          "causes": [
+            "Electromagnetic interference (EMI) from motors or VFDs",
+            "Poor grounding or ground loops",
+            "Damaged cable shielding allowing noise coupling",
+            "Power supply noise affecting analog circuits",
+            "Inadequate filtering of sensor signal",
+            "Long cable runs without shielding (>100m)",
+            "Nearby high-voltage equipment radiating interference"
+          ]
+        },
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Vibration loosening sensor connections",
+            "Physical damage to sensor element or probe",
+            "Clogged impulse lines in pressure transmitters",
+            "Mounting bracket flex causing sensor movement",
+            "Loose sensor housing allowing internal movement",
+            "Corrosion of connector pins"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Protocol errors or packet loss in network",
+            "IP address conflict in networked sensors",
+            "Baud rate mismatch in serial communication",
+            "Signal attenuation over long cable runs",
+            "Timeout errors in Modbus/Profibus communication",
+            "Incorrect data format conversion in PLC"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "Temperature fluctuations affecting electronics",
+            "Humidity causing condensation on circuit boards",
+            "Chemical corrosion of terminals from process media",
+            "RFI from nearby radio transmitters",
+            "Thermal cycling causing solder joint failures",
+            "Moisture ingress into sensor housing"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Improper sensor calibration or calibration drift",
+            "Wrong range or scaling configured in PLC",
+            "Sensor mounted in turbulent flow or dead zone",
+            "Sensor installed at wrong orientation",
+            "Sampling rate too fast for sensor response time",
+            "Using sensor outside its specified operating range"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "Coating or scaling buildup on sensor probe",
+            "Air bubbles in liquid lines affecting level sensors",
+            "Moisture in gas lines affecting gas analyzers",
+            "Media density changes affecting flow meter readings",
+            "Chemical reaction deposits on sensor surface",
+            "Particulate matter interfering with optical sensors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noise_vibration",
+      "name": "Noise & Vibration",
+      "description": "Excessive audible noise, grinding sounds, or mechanical vibration beyond normal operating levels.",
+      "applies_to_equipment": [
+        "AC Motor",
+        "Single Phase Motor",
+        "DC Motor",
+        "Servo/Stepper Motor",
+        "Centrifugal Pump",
+        "Positive Displacement Pump",
+        "Gear Pump",
+        "Reciprocating Compressor",
+        "Screw Compressor",
+        "Centrifugal Compressor",
+        "Gearbox/Reducer",
+        "Coupling/Belt/Chain Drive",
+        "Ball Valve",
+        "Butterfly Valve",
+        "Gate/Globe Valve",
+        "Check Valve",
+        "Blower"
+      ],
+      "root_causes": [
+        {
+          "category": "Electrical",
+          "causes": [
+            "Magnetic hum from unbalanced three-phase voltage",
+            "VFD switching noise (PWM frequency audible)",
+            "Loose transformer laminations vibrating",
+            "Coil buzz from unbalanced magnetic field",
+            "Harmonic resonance with mechanical structure"
+          ]
+        },
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Misalignment between motor and pump/load",
+            "Unbalanced rotating parts (rotor, impeller, fan blade)",
+            "Worn bearings with internal play",
+            "Loose mounting bolts or foundation",
+            "Gear tooth wear or chipped teeth",
+            "Bent shaft or coupling",
+            "Friction between internal components",
+            "Worn piston rings in reciprocating compressor"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Hunting or oscillating control loops causing rapid actuator movement",
+            "Erratic VFD speed commands causing speed fluctuation",
+            "Positioner instability causing valve hunting"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "Resonance with support structure or building frame",
+            "Acoustic reflection in piping or ductwork",
+            "Foundation settling or degradation",
+            "Nearby equipment vibration coupling into system"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Operating outside the Best Efficiency Point (BEP)",
+            "Cavitation in pump creating noise and vibration",
+            "Water hammer from rapid valve closure",
+            "Surge or pulsation in compressor discharge",
+            "Excessive load causing mechanical stress",
+            "Rapid pressure changes in system"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "Entrained air or gas in liquid creating cavitation",
+            "Slug flow in gas lines",
+            "High velocity turbulence at bends or restrictions",
+            "Solids hitting internal components",
+            "Fluid vaporization at low pressure regions",
+            "Incompatible fluid viscosity causing friction"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "valve_stuck",
+      "name": "Valve Stuck / Difficult Operation",
+      "description": "Valve unable to move, difficult to operate, or requires excessive force. Includes stuck open, stuck closed, or hard to turn.",
+      "applies_to_equipment": [
+        "Ball Valve",
+        "Butterfly Valve",
+        "Gate/Globe Valve",
+        "Check Valve",
+        "Control Valve",
+        "Diaphragm Valve",
+        "Plug Valve",
+        "Knife Gate Valve",
+        "Pinch Valve",
+        "Pneumatic Actuator",
+        "Electric Actuator",
+        "Hydraulic Actuator",
+        "Valve Gearbox"
+      ],
+      "root_causes": [
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Corrosion buildup on stem or ball surface",
+            "Mineral deposits or scale preventing movement",
+            "Debris or foreign material lodged in valve",
+            "Stem/shaft scoring from wear",
+            "Packing too tight restricting stem movement",
+            "Actuator linkage misalignment or binding",
+            "Gearbox internal damage or gear jam",
+            "Bearing wear increasing friction"
+          ]
+        },
+        {
+          "category": "Electrical",
+          "causes": [
+            "Actuator motor stalled from insufficient torque",
+            "Solenoid coil burnt out or failed",
+            "Limit switch stuck preventing valve movement",
+            "Control signal loss leaving valve in intermediate state",
+            "Brake release solenoid failure in electric actuator"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Feedback error causing control system to stop",
+            "Network disconnection halting actuator command",
+            "Emergency stop engaged and not reset",
+            "Conflicting control signals from multiple sources"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "Freeze-thaw cycles causing expansion/contraction",
+            "Extreme cold making lubricant viscous",
+            "Corrosive atmosphere causing rust",
+            "Salt spray or chemical exposure"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Over-torquing during manual operation",
+            "Improper installation (valve installed backwards)",
+            "Exceeding actuator torque rating",
+            "Leaving valve in intermediate position for extended time",
+            "Using wrong lubricant or no lubricant"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "High viscosity fluid at low temperature",
+            "Solidified or crystallized media",
+            "Abrasive particles causing friction",
+            "Chemical reaction creating deposits",
+            "Cavitation damage to sealing surfaces"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "no_flow",
+      "name": "No Flow / No Output / No Discharge",
+      "description": "Pump, compressor, or actuator produces no output flow, pressure, or motion despite receiving input power.",
+      "applies_to_equipment": [
+        "Centrifugal Pump",
+        "Positive Displacement Pump",
+        "Diaphragm Pump",
+        "Gear Pump",
+        "Peristaltic Pump",
+        "Reciprocating Compressor",
+        "Screw Compressor",
+        "Centrifugal Compressor",
+        "Blower",
+        "Vacuum Pump",
+        "Pneumatic Actuator",
+        "Electric Actuator",
+        "Hydraulic Actuator"
+      ],
+      "root_causes": [
+        {
+          "category": "Mechanical",
+          "causes": [
+            "Impeller or rotor jam from debris",
+            "Inlet valve stuck closed",
+            "Discharge valve stuck closed",
+            "Worn impeller or rotor reducing displacement",
+            "Internal leakage path (worn seals) bypassing output",
+            "Bearing failure causing rotor contact with housing",
+            "Broken coupling preventing power transmission",
+            "Check valve malfunction blocking flow"
+          ]
+        },
+        {
+          "category": "Electrical",
+          "causes": [
+            "Motor not running (see No Start category)",
+            "VFD fault preventing motor energization",
+            "Soft starter ramp incomplete or failed",
+            "Thermal overload tripped"
+          ]
+        },
+        {
+          "category": "Communication",
+          "causes": [
+            "Control signal loss to actuator",
+            "Feedback indicating false 'discharge blocked' condition",
+            "Pressure relief valve holding open due to signal error"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "causes": [
+            "Suction line frozen or iced",
+            "Inlet filter clogged with ice or debris",
+            "Discharge line frozen blocking output"
+          ]
+        },
+        {
+          "category": "Operational",
+          "causes": [
+            "Suction line not primed (air lock)",
+            "Inlet valve closed or throttled",
+            "Discharge valve closed or throttled",
+            "System pressure relief set too low",
+            "Pump operating below minimum speed",
+            "Incorrect pump rotation direction"
+          ]
+        },
+        {
+          "category": "Fluid/Media",
+          "causes": [
+            "Inlet media solidified or too viscous",
+            "Cavitation preventing prime",
+            "Air bubbles blocking flow path",
+            "Hydrate formation in gas lines",
+            "Debris or sediment blocking inlet strainer",
+            "Incompatible fluid damaging seals"
+          ]
+        }
+      ]
+    }
+  ],
+  "root_cause_categories": [
+    {
+      "id": "electrical",
+      "name": "Electrical",
+      "description": "Issues related to power supply, wiring, control signals, and electrical components",
+      "icon": "zap"
+    },
+    {
+      "id": "mechanical",
+      "name": "Mechanical",
+      "description": "Physical wear, misalignment, friction, and structural failures",
+      "icon": "cog"
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "description": "Network connectivity, protocol errors, signal loss, and feedback issues",
+      "icon": "radio"
+    },
+    {
+      "id": "environmental",
+      "name": "Environmental",
+      "description": "Temperature, humidity, corrosion, and ambient condition effects",
+      "icon": "wind"
+    },
+    {
+      "id": "operational",
+      "name": "Operational",
+      "description": "Human error, incorrect settings, improper procedures, and usage beyond design limits",
+      "icon": "alert-triangle"
+    },
+    {
+      "id": "fluid_media",
+      "name": "Fluid/Media",
+      "description": "Properties and contamination of process fluids, gases, and media",
+      "icon": "droplet"
+    }
+  ],
+  "equipment_categories": [
+    {
+      "id": "valves",
+      "name": "Valves",
+      "equipment": [
+        "Ball Valve",
+        "Butterfly Valve",
+        "Gate/Globe Valve",
+        "Check Valve",
+        "Control Valve",
+        "Pressure Relief Valve",
+        "Diaphragm Valve",
+        "Plug Valve",
+        "Knife Gate Valve",
+        "Pinch Valve"
+      ]
+    },
+    {
+      "id": "actuators",
+      "name": "Actuators & Valve Accessories",
+      "equipment": [
+        "Pneumatic Actuator",
+        "Electric Actuator",
+        "Hydraulic Actuator",
+        "Valve Gearbox"
+      ]
+    },
+    {
+      "id": "motors",
+      "name": "Motors",
+      "equipment": [
+        "AC Motor",
+        "Single Phase Motor",
+        "DC Motor",
+        "Servo/Stepper Motor"
+      ]
+    },
+    {
+      "id": "pumps",
+      "name": "Pumps",
+      "equipment": [
+        "Centrifugal Pump",
+        "Positive Displacement Pump",
+        "Diaphragm Pump",
+        "Gear Pump",
+        "Peristaltic Pump"
+      ]
+    },
+    {
+      "id": "compressors",
+      "name": "Compressors",
+      "equipment": [
+        "Reciprocating Compressor",
+        "Screw Compressor",
+        "Centrifugal Compressor"
+      ]
+    },
+    {
+      "id": "regulators",
+      "name": "Regulators & Solenoids",
+      "equipment": [
+        "Air Regulator",
+        "Solenoid Valve",
+        "Pressure Regulator",
+        "Limit Switch",
+        "Positioner"
+      ]
+    },
+    {
+      "id": "sensors",
+      "name": "Sensors & Instrumentation",
+      "equipment": [
+        "Pressure Transmitter",
+        "Temperature Sensor",
+        "Flow Meter",
+        "Level Sensor",
+        "Vibration Sensor",
+        "Proximity Sensor",
+        "Photoelectric Sensor",
+        "Radar Level",
+        "Ultrasonic Level",
+        "pH Analyzer",
+        "Conductivity Analyzer",
+        "Gas Analyzer",
+        "Encoder"
+      ]
+    },
+    {
+      "id": "electrical",
+      "name": "Electrical Controls & Power",
+      "equipment": [
+        "Power Supply",
+        "Circuit Breaker",
+        "Contactor/Relay",
+        "VFD/Soft Starter",
+        "PLC",
+        "HMI"
+      ]
+    },
+    {
+      "id": "power_transmission",
+      "name": "Mechanical Power Transmission",
+      "equipment": [
+        "Gearbox/Reducer",
+        "Coupling/Belt/Chain Drive"
+      ]
+    },
+    {
+      "id": "misc",
+      "name": "Other Common Assemblies",
+      "equipment": [
+        "Heat Exchanger",
+        "Strainer/Filter",
+        "Steam Trap",
+        "Blower",
+        "Vacuum Pump"
+      ]
+    }
+  ],
+  "statistics": {
+    "total_problem_types": 6,
+    "total_root_cause_categories": 6,
+    "total_equipment_types": 54,
+    "total_specific_causes": 234,
+    "average_causes_per_problem": 39,
+    "equipment_with_most_problems": "Pumps and Motors",
+    "most_common_root_cause_category": "Mechanical"
+  }
+}
