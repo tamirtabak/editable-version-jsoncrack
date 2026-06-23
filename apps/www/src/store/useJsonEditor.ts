@@ -90,11 +90,17 @@ function deleteByPath(
   };
 }
 
+export type ChangeType = "add" | "modify" | "delete";
+export interface PendingChange { path: string; type: ChangeType; }
+
 interface JsonEditorState {
   tree: Record<string, unknown>;
   dirty: boolean;
   relations: RelationMap;
   validationErrors: ValidationResult[];
+  history: Record<string, unknown>[];
+  historyIndex: number;
+  pendingChanges: PendingChange[];
 }
 
 interface JsonEditorActions {
@@ -105,74 +111,110 @@ interface JsonEditorActions {
   renameKey: (jsonPath: string, oldKey: string, newKey: string) => void;
   commit: () => void;
   discardDraft: () => void;
+  undo: () => void;
+  redo: () => void;
 }
 
-const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set, get) => ({
+function pushHistory(state: JsonEditorState, next: Record<string, unknown>): Partial<JsonEditorState> {
+  const sliced = state.history.slice(0, state.historyIndex + 1);
+  return { history: [...sliced, next], historyIndex: sliced.length };
+}
+
+export const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set, get) => ({
   tree: {},
   dirty: false,
   relations: new Map(),
   validationErrors: [],
+  history: [{}],
+  historyIndex: 0,
+  pendingChanges: [],
 
   loadFromJson: (json) => {
     try {
       const tree = JSON.parse(json) as Record<string, unknown>;
-      set({ tree, dirty: false, relations: buildRelationMap(tree), validationErrors: [] });
-    } catch {
-      // invalid json — don't overwrite
-    }
+      set({ tree, dirty: false, relations: buildRelationMap(tree), validationErrors: [], history: [tree], historyIndex: 0 });
+    } catch {}
   },
 
   setField: (jsonPath, key, value) => {
+    const s = get();
     const segments = jsonPath === "$" ? [key] : [...jsonPath.replace(/^\$\./, "").split("."), key];
-    const next = setByPath(get().tree, segments, value);
-    set({ tree: next, dirty: true, relations: buildRelationMap(next) });
+    const next = setByPath(s.tree, segments, value);
+    const fullPath = segments.join(".");
+    const existing = s.pendingChanges.find(c => c.path === fullPath);
+    const pendingChanges = existing
+      ? s.pendingChanges.map(c => c.path === fullPath ? { ...c, type: "modify" as ChangeType } : c)
+      : [...s.pendingChanges, { path: fullPath, type: "modify" as ChangeType }];
+    set({ tree: next, dirty: true, relations: buildRelationMap(next), pendingChanges, ...pushHistory(s, next) });
   },
 
   addField: (jsonPath, key, value) => {
+    const s = get();
     const segments = jsonPath === "$" ? [] : jsonPath.replace(/^\$\./, "").split(".");
-    const parent = (segments.length === 0 ? get().tree : getByPath(get().tree, segments)) as Record<string, unknown>;
+    const parent = (segments.length === 0 ? s.tree : getByPath(s.tree, segments)) as Record<string, unknown>;
     if (typeof parent !== "object" || parent === null) return;
     const updated = { ...parent, [key]: value };
-    const next = segments.length === 0 ? updated : setByPath(get().tree, segments, updated);
-    set({ tree: next, dirty: true, relations: buildRelationMap(next) });
+    const next = segments.length === 0 ? updated : setByPath(s.tree, segments, updated);
+    const fullPath = [...segments, key].join(".");
+    set({ tree: next, dirty: true, relations: buildRelationMap(next),
+      pendingChanges: [...s.pendingChanges, { path: fullPath, type: "add" }], ...pushHistory(s, next) });
   },
 
   renameKey: (jsonPath, oldKey, newKey) => {
+    const s = get();
     const segments = jsonPath === "$" ? [] : jsonPath.replace(/^\$\./, "").split(".");
-    const parent = (segments.length === 0 ? get().tree : getByPath(get().tree, segments)) as Record<string, unknown>;
+    const parent = (segments.length === 0 ? s.tree : getByPath(s.tree, segments)) as Record<string, unknown>;
     if (!parent || !(oldKey in parent)) return;
     const reordered = Object.fromEntries(
       Object.entries(parent).map(([k, v]) => [k === oldKey ? newKey : k, v])
     );
-    const next = segments.length === 0 ? reordered : setByPath(get().tree, segments, reordered);
-    set({ tree: next, dirty: true });
+    const next = segments.length === 0 ? reordered : setByPath(s.tree, segments, reordered);
+    const fullPath = [...segments, newKey].join(".");
+    set({ tree: next, dirty: true,
+      pendingChanges: [...s.pendingChanges, { path: fullPath, type: "modify" }], ...pushHistory(s, next) });
   },
 
   deleteNode: (jsonPath) => {
-    const issues = validateRefs(get().tree, jsonPath);
-    if (issues.length > 0) {
-      set({ validationErrors: issues });
-      return issues;
-    }
+    const s = get();
+    const issues = validateRefs(s.tree, jsonPath);
+    if (issues.length > 0) { set({ validationErrors: issues }); return issues; }
     const segments = jsonPath.replace(/^\$\./, "").split(".");
-    const next = deleteByPath(get().tree, segments);
-    set({ tree: next, dirty: true, relations: buildRelationMap(next), validationErrors: [] });
+    const next = deleteByPath(s.tree, segments);
+    const fullPath = segments.join(".");
+    set({ tree: next, dirty: true, relations: buildRelationMap(next), validationErrors: [],
+      pendingChanges: [...s.pendingChanges, { path: fullPath, type: "delete" }], ...pushHistory(s, next) });
     return [];
   },
 
   commit: () => {
     const json = JSON.stringify(get().tree, null, 2);
     useFile.getState().setContents({ contents: json, hasChanges: true });
-    set({ dirty: false });
+    set({ dirty: false, pendingChanges: [] });
   },
 
   discardDraft: () => {
     try {
       const json = useFile.getState().getContents();
       const tree = JSON.parse(json) as Record<string, unknown>;
-      set({ tree, dirty: false, validationErrors: [] });
-    } catch { /* ignore */ }
+      set({ tree, dirty: false, validationErrors: [], history: [tree], historyIndex: 0, pendingChanges: [] });
+    } catch {}
+  },
+
+  undo: () => {
+    const { history, historyIndex } = get();
+    if (historyIndex <= 0) return;
+    const idx = historyIndex - 1;
+    const tree = history[idx];
+    set({ tree, historyIndex: idx, dirty: idx > 0, relations: buildRelationMap(tree) });
+  },
+
+  redo: () => {
+    const { history, historyIndex } = get();
+    if (historyIndex >= history.length - 1) return;
+    const idx = historyIndex + 1;
+    const tree = history[idx];
+    set({ tree, historyIndex: idx, dirty: true, relations: buildRelationMap(tree) });
   },
 }));
 
-export default useJsonEditor;
+export { useJsonEditor as default };

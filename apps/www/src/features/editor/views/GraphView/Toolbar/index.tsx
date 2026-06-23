@@ -15,7 +15,9 @@ import {
   LuSearch,
   LuSettings2,
 } from "react-icons/lu";
-import { MdFullscreen, MdOutlineCenterFocusStrong, MdEdit, MdEditOff } from "react-icons/md";
+import { MdFullscreen, MdOutlineCenterFocusStrong, MdEdit, MdEditOff, MdSave, MdUndo, MdRedo } from "react-icons/md";
+import useJsonEditor from "../../../../../store/useJsonEditor";
+import { toast } from "react-hot-toast";
 import { TbArrowsLeftRight } from "react-icons/tb";
 import useConfig from "../../../../../store/useConfig";
 import { useModal } from "../../../../../store/useModal";
@@ -103,6 +105,7 @@ export const Toolbar = () => {
   const collapseAll = useGraph(state => state.collapseAll);
   const editMode = useGraph(state => state.editMode);
   const setEditMode = useGraph(state => state.setEditMode);
+  const { dirty, commit, undo, redo, historyIndex, history } = useJsonEditor();
   const setVisible = useModal(state => state.setVisible);
   const darkmodeEnabled = useConfig(state => state.darkmodeEnabled);
   const toggleDarkMode = useConfig(state => state.toggleDarkMode);
@@ -290,6 +293,29 @@ export const Toolbar = () => {
               {editMode ? <MdEditOff size={18} /> : <MdEdit size={18} />}
             </ActionIcon>
           </Tooltip>
+		  
+		  {editMode && dirty && (
+            <Tooltip label="Commit changes" position="top" withArrow openDelay={500}>
+              <ActionIcon size="lg" radius="md" variant="filled" color="green"
+                onClick={() => { commit(); toast.success("Committed"); }}>
+                <MdSave size={18} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+          {editMode && (
+            <>
+              <Tooltip label="Undo" position="top" withArrow openDelay={500}>
+                <ActionIcon size="lg" radius="md" variant="subtle" disabled={historyIndex <= 0} onClick={undo}>
+                  <MdUndo size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Redo" position="top" withArrow openDelay={500}>
+                <ActionIcon size="lg" radius="md" variant="subtle" disabled={historyIndex >= history.length - 1} onClick={redo}>
+                  <MdRedo size={18} />
+                </ActionIcon>
+              </Tooltip>
+            </>
+          )}
 
           <Divider orientation="vertical" mx={2} />
 

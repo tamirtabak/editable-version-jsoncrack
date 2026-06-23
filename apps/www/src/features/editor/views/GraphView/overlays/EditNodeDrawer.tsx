@@ -4,7 +4,7 @@ import {
   Drawer, Stack, TextInput, Button, Group, Text,
   ActionIcon, Divider, Badge, Alert, ScrollArea,
 } from "@mantine/core";
-import { MdAdd, MdDelete, MdSave, MdUndo, MdEdit } from "react-icons/md";
+import { MdAdd, MdDelete, MdUndo, MdEdit } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import type { NodeData } from "jsoncrack-react";
 import useJsonEditor from "../../../../../store/useJsonEditor";
@@ -22,7 +22,7 @@ function nodePath(node: NodeData): string {
 }
 
 export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
-  const { setField, addField, renameKey, deleteNode, commit, discardDraft, validationErrors, tree } = useJsonEditor();
+  const { setField, addField, renameKey, deleteNode, discardDraft, validationErrors } = useJsonEditor();
   const [newKey, setNewKey] = useState("");
   const [newVal, setNewVal] = useState("");
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -77,7 +77,6 @@ export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
     toast.success(`Renamed "${oldKey}" → "${renameVal}"`);
   };
 
-  const handleCommit = () => { commit(); toast.success("Changes saved"); onClose(); };
   const handleDiscard = () => { discardDraft(); toast("Discarded"); onClose(); };
 
   return (
@@ -168,7 +167,6 @@ export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
           </Button>
           <Divider />
           <Group gap="xs">
-            <Button size="xs" leftSection={<MdSave />} onClick={handleCommit} color="green">Commit</Button>
             <Button size="xs" leftSection={<MdUndo />} onClick={handleDiscard} variant="default">Discard</Button>
             <Button size="xs" color="red" variant="subtle" onClick={handleDelete}>Delete Node</Button>
           </Group>

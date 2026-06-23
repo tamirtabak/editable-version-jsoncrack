@@ -11,6 +11,7 @@ import { NotSupported } from "./NotSupported";
 import { SecureInfo } from "./SecureInfo";
 import { Toolbar } from "./Toolbar";
 import { EditNodeDrawer } from "./overlays/EditNodeDrawer";
+import { ChangeHighlightOverlay } from "./overlays/ChangeHighlightOverlay";
 import useGraph from "./stores/useGraph";
 import useJsonEditor from "../../../../store/useJsonEditor";
 
@@ -109,6 +110,7 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
         opened={editDrawerOpen}
         onClose={() => setEditDrawerOpen(false)}
       />
+	  <ChangeHighlightOverlay />
       <StyledEditorWrapper
         $widget={isWidget}
         onContextMenu={event => event.preventDefault()}
