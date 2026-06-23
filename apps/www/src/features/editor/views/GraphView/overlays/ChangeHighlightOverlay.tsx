@@ -44,7 +44,7 @@ export const ChangeHighlightOverlay = () => {
             borderRadius: 6,
             pointerEvents: "none",
             zIndex: 10,
-            transition: "all 0.2s",
+            transition: "all 5s",
           }} />
         );
       })}

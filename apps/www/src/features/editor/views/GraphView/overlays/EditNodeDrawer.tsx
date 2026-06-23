@@ -22,7 +22,7 @@ function nodePath(node: NodeData): string {
 }
 
 export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
-  const { setField, addField, renameKey, deleteNode, discardDraft, validationErrors } = useJsonEditor();
+  const { setField, addField, renameKey, deleteNode,commit, discardDraft, validationErrors } = useJsonEditor();
   const [newKey, setNewKey] = useState("");
   const [newVal, setNewVal] = useState("");
   const [editingKey, setEditingKey] = useState<string | null>(null);
