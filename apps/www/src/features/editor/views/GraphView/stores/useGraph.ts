@@ -10,6 +10,8 @@ export interface Graph {
   fullscreen: boolean;
   selectedNode: NodeData | null;
   collapsedCount: number;
+  editMode: boolean;
+  editDrawerOpen: boolean;
 }
 
 const initialStates: Graph = {
@@ -19,9 +21,13 @@ const initialStates: Graph = {
   fullscreen: false,
   selectedNode: null,
   collapsedCount: 0,
+  editMode: false,
+  editDrawerOpen: false,
 };
 
 interface GraphActions {
+  setEditMode: (enabled: boolean) => void;
+  setEditDrawerOpen: (open: boolean) => void;
   setDirection: (direction: LayoutDirection) => void;
   setViewPort: (ref: ViewPort) => void;
   setJsonCrackRef: (ref: RefObject<JSONCrackRef | null>) => void;
@@ -39,6 +45,8 @@ interface GraphActions {
 const useGraph = create<Graph & GraphActions>((set, get) => ({
   ...initialStates,
   setSelectedNode: nodeData => set({ selectedNode: nodeData }),
+  setEditMode: enabled => set({ editMode: enabled }),
+  setEditDrawerOpen: open => set({ editDrawerOpen: open }),
   setDirection: (direction = "RIGHT") => {
     set({ direction });
     setTimeout(() => get().centerView(), 200);

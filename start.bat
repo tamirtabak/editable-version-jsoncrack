@@ -1,6 +1,6 @@
 bat@echo off
 title jsoncrack.com Runner
-cd /d "D:\PycharmProjects\jsoncrack.com"
+cd /d "D:\PycharmProjects\editable-version-jsoncrack"
 
 echo Installing/updating dependencies...
 call pnpm install

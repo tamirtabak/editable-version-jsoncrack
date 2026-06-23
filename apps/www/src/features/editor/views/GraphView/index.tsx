@@ -10,7 +10,9 @@ import { useModal } from "../../../../store/useModal";
 import { NotSupported } from "./NotSupported";
 import { SecureInfo } from "./SecureInfo";
 import { Toolbar } from "./Toolbar";
+import { EditNodeDrawer } from "./overlays/EditNodeDrawer";
 import useGraph from "./stores/useGraph";
+import useJsonEditor from "../../../../store/useJsonEditor";
 
 const StyledEditorWrapper = styled.div<{ $widget: boolean }>`
   width: 100%;
@@ -53,6 +55,11 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
   const direction = useGraph(state => state.direction);
   const setSelectedNode = useGraph(state => state.setSelectedNode);
   const setCollapsedCount = useGraph(state => state.setCollapsedCount);
+  const editMode = useGraph(state => state.editMode);
+  const editDrawerOpen = useGraph(state => state.editDrawerOpen);
+  const setEditDrawerOpen = useGraph(state => state.setEditDrawerOpen);
+  const selectedNode = useGraph(state => state.selectedNode);
+  const loadFromJson = useJsonEditor(state => state.loadFromJson);
   const gesturesEnabled = useConfig(state => state.gesturesEnabled);
   const rulersEnabled = useConfig(state => state.rulersEnabled);
   const darkmodeEnabled = useConfig(state => state.darkmodeEnabled);
@@ -75,12 +82,20 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
     }
   }, []);
 
+  React.useEffect(() => {
+    loadFromJson(json);
+  }, [json, loadFromJson]);
+
   const handleNodeClick = React.useCallback(
     (node: NodeData) => {
       setSelectedNode(node);
-      setVisible("NodeModal", true);
+      if (editMode) {
+        setEditDrawerOpen(true);
+      } else {
+        setVisible("NodeModal", true);
+      }
     },
-    [setSelectedNode, setVisible]
+    [setSelectedNode, setVisible, editMode, setEditDrawerOpen]
   );
 
   const maxVisibleNodes = Number.isFinite(SUPPORTED_LIMIT) ? SUPPORTED_LIMIT : 1500;
@@ -89,6 +104,11 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
     <Box pos="relative" h="100%" w="100%">
       {!isWidget && <SecureInfo />}
       {!isWidget && <Toolbar />}
+      <EditNodeDrawer
+        node={selectedNode}
+        opened={editDrawerOpen}
+        onClose={() => setEditDrawerOpen(false)}
+      />
       <StyledEditorWrapper
         $widget={isWidget}
         onContextMenu={event => event.preventDefault()}

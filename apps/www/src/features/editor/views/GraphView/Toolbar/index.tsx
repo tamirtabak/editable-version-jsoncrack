@@ -15,7 +15,7 @@ import {
   LuSearch,
   LuSettings2,
 } from "react-icons/lu";
-import { MdFullscreen, MdOutlineCenterFocusStrong } from "react-icons/md";
+import { MdFullscreen, MdOutlineCenterFocusStrong, MdEdit, MdEditOff } from "react-icons/md";
 import { TbArrowsLeftRight } from "react-icons/tb";
 import useConfig from "../../../../../store/useConfig";
 import { useModal } from "../../../../../store/useModal";
@@ -101,6 +101,8 @@ export const Toolbar = () => {
   const collapsedCount = useGraph(state => state.collapsedCount);
   const expandAll = useGraph(state => state.expandAll);
   const collapseAll = useGraph(state => state.collapseAll);
+  const editMode = useGraph(state => state.editMode);
+  const setEditMode = useGraph(state => state.setEditMode);
   const setVisible = useModal(state => state.setVisible);
   const darkmodeEnabled = useConfig(state => state.darkmodeEnabled);
   const toggleDarkMode = useConfig(state => state.toggleDarkMode);
@@ -273,6 +275,19 @@ export const Toolbar = () => {
               }}
             >
               {collapsedCount > 0 ? <LuCopyPlus size={18} /> : <LuCopyMinus size={18} />}
+            </ActionIcon>
+          </Tooltip>
+		  
+		  <Tooltip label={editMode ? "Exit Edit Mode (E)" : "Edit Mode (E)"} position="top" withArrow openDelay={750}>
+            <ActionIcon
+              aria-label="toggle edit mode"
+              size="lg"
+              radius="md"
+              variant={editMode ? "filled" : "subtle"}
+              color={editMode ? "orange" : "gray"}
+              onClick={() => setEditMode(!editMode)}
+            >
+              {editMode ? <MdEditOff size={18} /> : <MdEdit size={18} />}
             </ActionIcon>
           </Tooltip>
 
