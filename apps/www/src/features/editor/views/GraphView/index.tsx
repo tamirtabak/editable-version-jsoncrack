@@ -13,7 +13,7 @@ import { Toolbar } from "./Toolbar";
 import { EditNodeDrawer } from "./overlays/EditNodeDrawer";
 import { ChangeHighlightOverlay } from "./overlays/ChangeHighlightOverlay";
 import useGraph from "./stores/useGraph";
-import useJsonEditor from "../../../../store/useJsonEditor";
+import useJsonEditor, { useJsonEditor as useJsonEditorStore } from "../../../../store/useJsonEditor";
 
 const StyledEditorWrapper = styled.div<{ $widget: boolean }>`
   width: 100%;
@@ -61,6 +61,7 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
   const setEditDrawerOpen = useGraph(state => state.setEditDrawerOpen);
   const selectedNode = useGraph(state => state.selectedNode);
   const loadFromJson = useJsonEditor(state => state.loadFromJson);
+  const editorDirty = useJsonEditor(state => state.dirty);
   const gesturesEnabled = useConfig(state => state.gesturesEnabled);
   const rulersEnabled = useConfig(state => state.rulersEnabled);
   const darkmodeEnabled = useConfig(state => state.darkmodeEnabled);
@@ -69,8 +70,8 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
   const jsonCrackRef = React.useRef<JSONCrackRef>(null);
 
   React.useEffect(() => {
-    setJsonCrackRef(jsonCrackRef);
-  }, [setJsonCrackRef]);
+    if (!editorDirty) loadFromJson(json);
+  }, [json, editorDirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCollapseChange = React.useCallback(
     (paths: string[]) => setCollapsedCount(paths.length),

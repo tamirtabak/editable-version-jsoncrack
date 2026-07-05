@@ -33,7 +33,20 @@ function buildValue(type: string, strVal: string, objFields: ObjField[], arrItem
       }
       return obj;
     }
-    case "array": return arrItems.map(i => buildValue(i.type, i.value, [], []));
+    case "array": {
+      if (arrItems.length === 0) return [];
+      // if items are objects with a key set, build named object; else build plain array
+      const firstHasKey = arrItems[0]?.key?.trim();
+      if (firstHasKey) {
+        const obj: Record<string, unknown> = {};
+        for (const f of arrItems) {
+          if (!f.key.trim()) continue;
+          obj[f.key.trim()] = buildValue(f.type, f.value, [], []);
+        }
+        return [obj];
+      }
+      return arrItems.map(i => buildValue(i.type, i.value, [], []));
+    }
     default: return strVal;
   }
 }
@@ -137,6 +150,7 @@ export const AddNodeModal = ({ opened, onClose, parentPath = "$" }: Props) => {
                 onRemove={() => setArrItems(prev => prev.filter((_, j) => j !== i))}
               />
             ))}
+            <Text fz="xs" c="dimmed">Leave key blank for plain array items, or fill key to build an object inside the array.</Text>
             <Button size="xs" variant="light" onClick={() => setArrItems(p => [...p, { key: "", value: "", type: "string" }])}>+ item</Button>
           </Stack>
         )}

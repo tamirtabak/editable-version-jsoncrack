@@ -205,14 +205,18 @@ export const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set,
     if (historyIndex <= 0) return;
     const idx = historyIndex - 1;
     const tree = history[idx];
+    const json = JSON.stringify(tree, null, 2);
+    useFile.getState().setContents({ contents: json, hasChanges: true });
     set({ tree, historyIndex: idx, dirty: idx > 0, relations: buildRelationMap(tree) });
   },
 
-  redo: () => {
+ redo: () => {
     const { history, historyIndex } = get();
     if (historyIndex >= history.length - 1) return;
     const idx = historyIndex + 1;
     const tree = history[idx];
+    const json = JSON.stringify(tree, null, 2);
+    useFile.getState().setContents({ contents: json, hasChanges: true });
     set({ tree, historyIndex: idx, dirty: true, relations: buildRelationMap(tree) });
   },
 }));

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Drawer, Stack, TextInput, Button, Group, Text,
-  ActionIcon, Divider, Badge, Alert, ScrollArea,
+  ActionIcon, Divider, Badge, Alert, ScrollArea,Switch
 } from "@mantine/core";
 import { MdAdd, MdDelete, MdUndo, MdEdit } from "react-icons/md";
 import { toast } from "react-hot-toast";
@@ -22,7 +22,7 @@ function nodePath(node: NodeData): string {
 }
 
 export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
-  const { setField, addField, renameKey, deleteNode,commit, discardDraft, validationErrors } = useJsonEditor();
+  const { setField, addField, renameKey, deleteNode, commit, discardDraft, validationErrors , tree} = useJsonEditor();
   const [newKey, setNewKey] = useState("");
   const [newVal, setNewVal] = useState("");
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -31,11 +31,30 @@ export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
   const [renameTarget, setRenameTarget] = useState<string | null>(null);
   const [renameVal, setRenameVal] = useState("");
   const [addChildOpen, setAddChildOpen] = useState(false);
+  const [deleteFieldSiblings, setDeleteFieldSiblings] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (opened) { setNewKey(""); setNewVal(""); setEditingKey(null); setRenameTarget(null); setLocalValues({}); }
   }, [opened, node]);
 
+const siblingPaths = React.useMemo(() => {
+    if (!node || !node.path || node.path.length < 1) return [];
+    // node.path is the full absolute path array from root
+    const segments = node.path.map(String);
+    const parentSegments = segments.slice(0, -1);
+    // walk tree to parent
+    let parentObj: unknown = tree;
+    for (const s of parentSegments) {
+      if (typeof parentObj !== "object" || parentObj === null) return [];
+      parentObj = (parentObj as Record<string, unknown>)[s];
+    }
+    if (typeof parentObj !== "object" || parentObj === null || Array.isArray(parentObj)) return [];
+    const thisKey = segments[segments.length - 1];
+    const parentPrefix = parentSegments.length === 0 ? "$" : "$." + parentSegments.join(".");
+    return Object.keys(parentObj as Record<string, unknown>)
+      .filter(k => k !== thisKey)
+      .map(k => `${parentPrefix}.${k}`);
+  }, [node, tree]);
   if (!node) return null;
 
   const path = nodePath(node);
@@ -120,15 +139,23 @@ export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
                     </ActionIcon>
                   </Group>
                 )}
-                <ActionIcon
-                  size="xs"
-                  color="red"
-                  variant="subtle"
-                  onClick={() => { deleteNode(`${path}.${row.key}`); commit(); toast.success(`Deleted "${row.key}"`); }}
-                >
+                <ActionIcon size="xs" color="red" variant="subtle"
+                  onClick={() => {
+                    const fieldKey = row.key!;
+                    const targets = deleteFieldSiblings[fieldKey]
+                      ? [path, ...siblingPaths]
+                      : [path];
+                    let blocked = false;
+                    for (const t of targets) {
+                      const issues = deleteNode(`${t}.${fieldKey}`);
+                      if (issues.length > 0) { toast.error(`Ref conflict at ${t}`); blocked = true; break; }
+                    }
+                    if (!blocked) { commit(); toast.success(`Deleted "${row.key}" from ${targets.length} node(s)`); }
+                  }}>
                   <MdDelete size={12} />
                 </ActionIcon>
               </Group>
+              
               {editingKey === row.key ? (
                 <Group gap={4}>
                   <TextInput
@@ -149,6 +176,14 @@ export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
                 >
 				{localValues[row.key!] !== undefined ? localValues[row.key!] : String(row.value ?? "null")}
                 </Text>
+              )}
+			  {siblingPaths.length > 0 && (
+                <Switch
+                  size="xs"
+                  label={`Also apply field delete to all ${siblingPaths.length} sibling(s)`}
+                  checked={!!deleteFieldSiblings[row.key!]}
+                  onChange={e => setDeleteFieldSiblings(prev => ({ ...prev, [row.key!]: e.currentTarget.checked }))}
+                />
               )}
             </Stack>
           ))}
