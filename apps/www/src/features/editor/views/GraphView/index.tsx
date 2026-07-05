@@ -69,9 +69,6 @@ export const GraphView = ({ isWidget = false }: GraphProps) => {
   const setVisible = useModal(state => state.setVisible);
   const jsonCrackRef = React.useRef<JSONCrackRef>(null);
 
-  React.useEffect(() => {
-    if (!editorDirty) loadFromJson(json);
-  }, [json, editorDirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCollapseChange = React.useCallback(
     (paths: string[]) => setCollapsedCount(paths.length),

@@ -53,41 +53,50 @@ export function validateRefs(tree: unknown, deletePath: string): ValidationResul
   return issues;
 }
 
-function getByPath(obj: Record<string, unknown>, segments: string[]): unknown {
+function getByPath(obj: unknown, segments: string[]): unknown {
   let cur: unknown = obj;
   for (const s of segments) {
-    if (typeof cur !== "object" || cur === null) return undefined;
+    if (cur === null || typeof cur !== "object") return undefined;
     cur = (cur as Record<string, unknown>)[s];
   }
   return cur;
 }
 
 function setByPath(
-  obj: Record<string, unknown>,
+  obj: unknown,
   segments: string[],
   value: unknown
-): Record<string, unknown> {
-  if (segments.length === 0) return value as Record<string, unknown>;
+): unknown {
+  if (segments.length === 0) return value;
   const [head, ...tail] = segments;
-  const current = (obj[head] ?? {}) as Record<string, unknown>;
-  return { ...obj, [head]: tail.length === 0 ? value : setByPath(current, tail, value) };
+  if (Array.isArray(obj)) {
+    const idx = Number(head);
+    const arr = [...obj];
+    arr[idx] = tail.length === 0 ? value : setByPath(arr[idx] ?? {}, tail, value);
+    return arr;
+  }
+  const o = (obj ?? {}) as Record<string, unknown>;
+  const child = o[head];
+  return {
+    ...o,
+    [head]: tail.length === 0 ? value : setByPath(child ?? {}, tail, value),
+  };
 }
 
-function deleteByPath(
-  obj: Record<string, unknown>,
-  segments: string[]
-): Record<string, unknown> {
+function deleteByPath(obj: unknown, segments: string[]): unknown {
   if (segments.length === 0) return obj;
   const [head, ...tail] = segments;
-  if (tail.length === 0) {
-    const next = { ...obj };
-    delete next[head];
-    return next;
+  if (Array.isArray(obj)) {
+    const idx = Number(head);
+    const arr = [...obj];
+    if (tail.length === 0) { arr.splice(idx, 1); return arr; }
+    arr[idx] = deleteByPath(arr[idx], tail);
+    return arr;
   }
-  return {
-    ...obj,
-    [head]: deleteByPath((obj[head] ?? {}) as Record<string, unknown>, tail),
-  };
+  const o = { ...(obj as Record<string, unknown>) };
+  if (tail.length === 0) { delete o[head]; return o; }
+  o[head] = deleteByPath(o[head], tail);
+  return o;
 }
 
 export type ChangeType = "add" | "modify" | "delete";
@@ -139,7 +148,7 @@ export const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set,
   setField: (jsonPath, key, value) => {
     const s = get();
     const segments = jsonPath === "$" ? [key] : [...jsonPath.replace(/^\$\./, "").split("."), key];
-    const next = setByPath(s.tree, segments, value);
+    const next = setByPath(s.tree, segments, value) as Record<string, unknown>;
     const fullPath = segments.join(".");
     const existing = s.pendingChanges.find(c => c.path === fullPath);
     const pendingChanges = existing
@@ -149,15 +158,16 @@ export const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set,
   },
 
   addField: (jsonPath, key, value) => {
+    // always reads fresh state so sibling loops accumulate correctly
     const s = get();
     const segments = jsonPath === "$" ? [] : jsonPath.replace(/^\$\./, "").split(".");
     const parent = (segments.length === 0 ? s.tree : getByPath(s.tree, segments)) as Record<string, unknown>;
     if (typeof parent !== "object" || parent === null) return;
-    const updated = { ...parent, [key]: value };
-    const next = segments.length === 0 ? updated : setByPath(s.tree, segments, updated);
+    const updated = Array.isArray(parent) ? [...parent, value] : { ...parent, [key]: value };
+    const next = (segments.length === 0 ? updated : setByPath(s.tree, segments, updated)) as Record<string, unknown>;
     const fullPath = [...segments, key].join(".");
     set({ tree: next, dirty: true, relations: buildRelationMap(next),
-      pendingChanges: [...s.pendingChanges, { path: fullPath, type: "add" }], ...pushHistory(s, next) });
+      pendingChanges: [...get().pendingChanges, { path: fullPath, type: "add" }], ...pushHistory(get(), next) });
   },
 
   renameKey: (jsonPath, oldKey, newKey) => {
@@ -168,7 +178,7 @@ export const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set,
     const reordered = Object.fromEntries(
       Object.entries(parent).map(([k, v]) => [k === oldKey ? newKey : k, v])
     );
-    const next = segments.length === 0 ? reordered : setByPath(s.tree, segments, reordered);
+    const next = (segments.length === 0 ? reordered : setByPath(s.tree, segments, reordered)) as Record<string, unknown>;
     const fullPath = [...segments, newKey].join(".");
     set({ tree: next, dirty: true,
       pendingChanges: [...s.pendingChanges, { path: fullPath, type: "modify" }], ...pushHistory(s, next) });
@@ -179,7 +189,7 @@ export const useJsonEditor = create<JsonEditorState & JsonEditorActions>()((set,
     const issues = validateRefs(s.tree, jsonPath);
     if (issues.length > 0) { set({ validationErrors: issues }); return issues; }
     const segments = jsonPath.replace(/^\$\./, "").split(".");
-    const next = deleteByPath(s.tree, segments);
+    const next = deleteByPath(s.tree, segments) as Record<string, unknown>;
     const fullPath = segments.join(".");
     set({ tree: next, dirty: true, relations: buildRelationMap(next), validationErrors: [],
       pendingChanges: [...s.pendingChanges, { path: fullPath, type: "delete" }], ...pushHistory(s, next) });

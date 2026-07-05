@@ -39,6 +39,7 @@ export const EditNodeDrawer = ({ node, opened, onClose }: Props) => {
 
 const siblingPaths = React.useMemo(() => {
     if (!node || !node.path || node.path.length < 1) return [];
+    // guard: numeric-only paths = array indices, siblings exist but may be indexed differently
     // node.path is the full absolute path array from root
     const segments = node.path.map(String);
     const parentSegments = segments.slice(0, -1);
@@ -48,13 +49,21 @@ const siblingPaths = React.useMemo(() => {
       if (typeof parentObj !== "object" || parentObj === null) return [];
       parentObj = (parentObj as Record<string, unknown>)[s];
     }
-    if (typeof parentObj !== "object" || parentObj === null || Array.isArray(parentObj)) return [];
+    if (parentObj === null || typeof parentObj !== "object") return [];
     const thisKey = segments[segments.length - 1];
     const parentPrefix = parentSegments.length === 0 ? "$" : "$." + parentSegments.join(".");
+    if (Array.isArray(parentObj)) {
+      return parentObj
+        .map((_, i) => String(i))
+        .filter(i => i !== thisKey)
+        .map(i => `${parentPrefix}.${i}`);
+    }
     return Object.keys(parentObj as Record<string, unknown>)
       .filter(k => k !== thisKey)
       .map(k => `${parentPrefix}.${k}`);
   }, [node, tree]);
+  // eslint-disable-next-line no-console
+  if (process.env.NODE_ENV === "development") console.log("[drawer] node.path=", node?.path, "siblings=", siblingPaths);
   if (!node) return null;
 
   const path = nodePath(node);
@@ -147,10 +156,10 @@ const siblingPaths = React.useMemo(() => {
                       : [path];
                     let blocked = false;
                     for (const t of targets) {
-                      const issues = deleteNode(`${t}.${fieldKey}`);
+                      const issues = useJsonEditor.getState().deleteNode(`${t}.${fieldKey}`);
                       if (issues.length > 0) { toast.error(`Ref conflict at ${t}`); blocked = true; break; }
                     }
-                    if (!blocked) { commit(); toast.success(`Deleted "${row.key}" from ${targets.length} node(s)`); }
+                    if (!blocked) { useJsonEditor.getState().commit(); toast.success(`Deleted "${row.key}" from ${targets.length} node(s)`); }
                   }}>
                   <MdDelete size={12} />
                 </ActionIcon>
@@ -177,7 +186,7 @@ const siblingPaths = React.useMemo(() => {
 				{localValues[row.key!] !== undefined ? localValues[row.key!] : String(row.value ?? "null")}
                 </Text>
               )}
-			  {siblingPaths.length > 0 && (
+			  {siblingPaths.length >0 && (
                 <Switch
                   size="xs"
                   label={`Also apply field delete to all ${siblingPaths.length} sibling(s)`}

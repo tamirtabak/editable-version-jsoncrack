@@ -86,14 +86,22 @@ export const AddNodeModal = ({ opened, onClose, parentPath = "$" }: Props) => {
     const parentSegments = segments.slice(0, -1);
     let parentObj: unknown = tree;
     for (const s of parentSegments) {
-      if (typeof parentObj !== "object" || parentObj === null) return [];
+      if (parentObj === null || typeof parentObj !== "object") return [];
       parentObj = (parentObj as Record<string, unknown>)[s];
     }
-    if (typeof parentObj !== "object" || parentObj === null || Array.isArray(parentObj)) return [];
+    if (parentObj === null || typeof parentObj !== "object") return [];
     const siblingKey = segments[segments.length - 1];
-    const siblings = Object.keys(parentObj as Record<string, unknown>).filter(k => k !== siblingKey);
     const parentPrefix = parentSegments.length === 0 ? "$" : "$." + parentSegments.join(".");
-    return siblings.map(s => `${parentPrefix}.${s}`);
+    if (Array.isArray(parentObj)) {
+      // siblings are other array indices
+      return parentObj
+        .map((_, i) => String(i))
+        .filter(i => i !== siblingKey)
+        .map(i => `${parentPrefix}.${i}`);
+    }
+    return Object.keys(parentObj as Record<string, unknown>)
+      .filter(k => k !== siblingKey)
+      .map(k => `${parentPrefix}.${k}`);
   }, [parentPath, tree]);
 
   const reset = () => {
@@ -109,8 +117,11 @@ export const AddNodeModal = ({ opened, onClose, parentPath = "$" }: Props) => {
   const handleAdd = () => {
     if (!key.trim()) return toast.error("Key required");
     const targets = [parentPath, ...(applyToSiblings ? siblingPaths : [])];
-    for (const p of targets) addField(p, key.trim(), value);
-    commit();
+    // use getState() each iteration so each addField sees the updated tree
+    for (const p of targets) {
+      useJsonEditor.getState().addField(p, key.trim(), value);
+    }
+    useJsonEditor.getState().commit();
     toast.success(`Added "${key}" to ${targets.length} node(s)`);
     reset(); onClose();
   };
