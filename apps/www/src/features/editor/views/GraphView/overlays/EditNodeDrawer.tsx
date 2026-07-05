@@ -137,8 +137,8 @@ const siblingPaths = React.useMemo(() => {
                       placeholder="New key name"
                       style={{ flex: 1 }}
                     />
-                    <Button size="xs" onClick={() => handleRename(row.key!)} compact>OK</Button>
-                    <Button size="xs" variant="subtle" onClick={() => setRenameTarget(null)} compact>✕</Button>
+                    <Button size="xs" onClick={() => handleRename(row.key!)}>OK</Button>
+					<Button size="xs" variant="subtle" onClick={() => setRenameTarget(null)}>✕</Button>
                   </Group>
                 ) : (
                   <Group gap={4}>
